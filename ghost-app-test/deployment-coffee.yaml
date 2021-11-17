@@ -70,7 +70,7 @@ metadata:
     kubernetes.io/ingress.class: addon-http-application-routing
 spec:
   rules:
-  - host: coffee.alexapp-dns-83920138.hcp.westeurope.azmk8s.io
+  - host: coffee.darthvader-dns-476e55b1.hcp.northeurope.azmk8s.io
     http:
       paths:
       - path: /
