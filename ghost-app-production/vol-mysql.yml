@@ -4,10 +4,10 @@ kind: PersistentVolumeClaim
 metadata:
   name: mysql2-pv-claim
   labels:
-    type: local-path
+    type: default
     app: coffee
 spec:
-  storageClassName: local-path
+  storageClassName: default
   accessModes:
     - ReadWriteOnce
   resources:
