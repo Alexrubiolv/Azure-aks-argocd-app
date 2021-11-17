@@ -1,0 +1,15 @@
+#Create the PVC
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql1-pv-claim
+  labels:
+    type: default
+    app: coffee
+spec:
+  storageClassName: default
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi    

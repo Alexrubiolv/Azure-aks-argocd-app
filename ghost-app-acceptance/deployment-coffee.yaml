@@ -1,0 +1,66 @@
+#Mainteiner Alexandre Rubio (alexrfoliver@gmail.com)
+#Create the Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: coffee-svc
+
+spec:
+  type: LoadBalancer
+  selector:
+    app: coffee
+  ports:
+  - protocol: TCP
+    name: http
+    port: 80
+    targetPort: 2368
+
+    
+---
+#Create the Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: coffee
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: coffee
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        app: coffee
+        tier: frontend
+    spec:
+      containers:
+      - name: coffee
+        image: ghost:3.42.7-alpine
+        imagePullPolicy: Always
+        resources:
+        ports:
+        - containerPort: 80 
+          protocol: TCP
+        env:
+        - name: database__client
+          value: mysql
+        - name: database__connection__host
+          value: coffee-mysql
+        - name: database__connection__user
+          value: root
+        - name: database__connection__password
+          valueFrom:
+            secretKeyRef:
+              name: mysql-pass
+              key: password
+        - name: database__connection__database
+          value: coffee
+        volumeMounts:
+        - mountPath: /var/lib/coffee/content
+          name: coffee-vol
+      volumes:
+        - name: coffee-vol
+          persistentVolumeClaim:
+            claimName: coffee1-pv-claim
+

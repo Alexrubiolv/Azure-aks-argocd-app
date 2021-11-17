@@ -1,0 +1,16 @@
+#Mainteiner Alexandre Rubio (alexrfoliver@gmail.com)
+#Create the PVC
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: coffee2-pv-claim
+  labels:
+    type: local-path
+    app: coffee
+spec:
+  storageClassName: local-path
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi

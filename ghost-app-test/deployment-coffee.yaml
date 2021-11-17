@@ -1,0 +1,84 @@
+#Mainteiner Alexandre Rubio (alexrfoliver@gmail.com)
+#Create the Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: coffee 
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 2368
+  selector:
+    app: coffee
+
+    
+---
+#Create the Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: coffee
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: coffee
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        app: coffee
+        tier: frontend
+    spec:
+      containers:
+      - name: coffee
+        image: ghost:3.42.7-alpine
+        imagePullPolicy: Always
+        resources:
+        ports:
+        - containerPort: 80
+          protocol: TCP
+         
+        env:
+        - name: database__client
+          value: mysql
+        - name: database__connection__host
+          value: coffee-mysql
+        - name: database__connection__user
+          value: root
+        - name: database__connection__password
+          valueFrom:
+            secretKeyRef:
+              name: mysql-pass
+              key: password
+        - name: database__connection__database
+          value: coffee
+        volumeMounts:
+        - mountPath: /var/lib/ghost/content
+          name: coffee-vol
+      volumes:
+        - name: coffee-vol
+          persistentVolumeClaim:
+            claimName: coffee-pv-claim
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: coffee
+  annotations:
+    kubernetes.io/ingress.class: addon-http-application-routing
+spec:
+  rules:
+  - host: coffee.alexapp-dns-83920138.hcp.westeurope.azmk8s.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service: 
+            name: coffee
+            port: 
+              number: 80
+                         
+

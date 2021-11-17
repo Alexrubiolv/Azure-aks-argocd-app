@@ -1,0 +1,63 @@
+#Mainteiner Alexandre Rubio (alexrfoliver@gmail.com)
+#Create the Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: coffee-mysql
+  labels:
+    app: coffee
+spec:
+  ports:
+    - port: 3306
+  selector:
+    app: coffee
+    tier: mysql
+  clusterIP: None
+---
+#Create the Deployment database
+apiVersion: apps/v1 # for versions above 1.9.0 
+kind: Deployment
+metadata:
+  name: coffee-mysql
+  labels:
+    app: coffee
+spec:
+  selector:
+    matchLabels:
+      app: coffee
+      tier: mysql
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: coffee
+        tier: mysql
+    spec:
+      containers:
+      - image: mysql:5.6
+        imagePullPolicy: Always
+        name: mysql
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-pass
+              key: password
+        - name: MYSQL_USER
+          value: coffee
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-pass
+              key: password       
+        ports:
+        - containerPort: 3306
+          name: mysql
+        volumeMounts:
+        - name: mysql-vol
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: mysql-vol
+        persistentVolumeClaim:
+          claimName: mysql1-pv-claim
