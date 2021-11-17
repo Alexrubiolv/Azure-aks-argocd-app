@@ -6,7 +6,7 @@ metadata:
   name: coffee-svc
 
 spec:
-  type: ClusterIP
+  type: LoadBalancer
   selector:
     app: coffee
   ports:
